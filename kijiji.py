@@ -5,7 +5,6 @@ from config import *
 from pytz import timezone
 from datetime import datetime
 from smtplib import SMTP
-from os import makedirs
 
 
 def format_link(search):
@@ -52,6 +51,8 @@ def run(search, pages, floor, ceiling):
     url = format_link(search)
 
     for page in range(pages):
+        if url is None:
+            break
         array += scraper(url, floor, ceiling)
         url = get_next_link(url)
 
@@ -74,16 +75,20 @@ def send_email(subject, dataframe):
 
 
 def initiate(search, pages, floor, ceiling):
-    old_dataframe = pd.read_pickle(directory + search + ".pkl")
     new_dataframe = run(search, pages, floor, ceiling)
-
-    old = old_dataframe.to_numpy()
     new = new_dataframe.to_numpy()
-    array = []
 
-    for item in new:
-        if item not in old:
-            array.append(item)
+    try:
+        old_dataframe = pd.read_pickle(directory + search + ".pkl")
+        old = old_dataframe.to_numpy()
+        array = []
+
+        for item in new:
+            if item not in old:
+                array.append(item)
+
+    except FileNotFoundError:  # no old file exists
+        array = new
 
     if len(array) > 0:
         try:
@@ -95,15 +100,3 @@ def initiate(search, pages, floor, ceiling):
         temp.to_pickle(temp_dir + search + ".pkl")
 
     new_dataframe.to_pickle(directory + search + ".pkl")
-
-
-pd.set_option("display.max_colwidth", 10000)
-kijiji = "http://kijiji.ca"
-fieldnames = ["Listing Name", "Price", "Link"]
-temp_dir = directory + "temp" + slash
-
-try:  # makes the proper save locations
-    makedirs(directory)
-    makedirs(temp_dir)
-except FileExistsError:
-    pass

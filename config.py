@@ -7,11 +7,18 @@
 
 
 from os.path import abspath, dirname
+from os import makedirs
+import pandas as pd
 
 
-# do not edit
+# DO NOT EDIT
 location = abspath(__file__)
 root_directory = dirname(location)
+pd.set_option("display.max_colwidth", 10000)
+kijiji = "http://kijiji.ca"
+fieldnames = ["Listing Name", "Price", "Link"]
+# DO NOT EDIT
+
 
 # config file for your sending and receiving email
 # sending email must be a gmail account, configure on the link below
@@ -33,3 +40,13 @@ link_part_2 = "/k0l1700273"
 
 # timezone for emails, reference pytz for syntax
 my_timezone = "US/Eastern"
+
+
+# DO NOT EDIT
+temp_dir = directory + "temp" + slash
+
+try:  # makes the proper save locations
+    makedirs(directory)
+    makedirs(temp_dir)
+except FileExistsError:
+    pass
